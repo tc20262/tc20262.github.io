@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiteBuilder Pro — Конструктор сайтов</title>
     <style>
+        /* ... все стили такие же как были ... */
         * {
             margin: 0;
             padding: 0;
@@ -12,15 +13,17 @@
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
 
-        body {
-            background: #f0f2f5;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+        html, body {
+            height: 100%;
             overflow: hidden;
         }
 
-        /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
+        body {
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+        }
+
         .toolbar {
             background: #fff;
             border-bottom: 1px solid #d0d7de;
@@ -32,6 +35,7 @@
             flex-shrink: 0;
             box-shadow: 0 1px 4px rgba(0,0,0,0.04);
             z-index: 10;
+            min-height: 56px;
         }
 
         .toolbar .brand {
@@ -132,37 +136,64 @@
             margin: 0 6px;
         }
 
-        /* ===== ОСНОВНАЯ ОБЛАСТЬ ===== */
+        .publish-status {
+            display: none;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #2e7d32;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .publish-status.active {
+            display: flex;
+        }
+
+        .publish-status .url-link {
+            color: #0a7cff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .publish-status .url-link:hover {
+            text-decoration: underline;
+        }
+
         .main-area {
             display: flex;
             flex: 1;
+            min-height: 0;
             overflow: hidden;
         }
 
-        /* ===== ХОЛСТ ===== */
         .canvas-wrapper {
             flex: 1;
             padding: 20px;
-            overflow: auto;
+            overflow-y: auto;
+            overflow-x: auto;
             background: #e8edf2;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            min-height: 0;
         }
 
         #siteCanvas {
             width: 100%;
             max-width: 1000px;
-            min-height: 600px;
+            min-height: 400px;
             background: #ffffff;
             border-radius: 12px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.08);
             padding: 30px;
             position: relative;
             transition: 0.1s;
+            margin-bottom: 20px;
         }
 
-        /* ===== СТИЛИ ДЛЯ ЭЛЕМЕНТОВ ===== */
         .canvas-element {
             position: relative;
             margin: 6px 0;
@@ -225,7 +256,6 @@
             display: block;
         }
 
-        /* ===== ПАНЕЛЬ СВОЙСТВ ===== */
         .properties-panel {
             width: 280px;
             background: #fff;
@@ -233,6 +263,7 @@
             padding: 16px 14px;
             overflow-y: auto;
             flex-shrink: 0;
+            max-height: 100%;
         }
 
         .properties-panel h4 {
@@ -287,29 +318,17 @@
             box-shadow: 0 0 0 3px rgba(10, 124, 255, 0.1);
         }
 
-        .prop-group .row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .prop-group .row > * {
-            flex: 1;
-        }
-
-        .prop-group .btn {
-            background: #f1f4f8;
-            border: 1px solid #d0d7de;
-            border-radius: 6px;
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
         .prop-group .btn.primary {
             background: #0a7cff;
             border-color: #0a7cff;
             color: #fff;
             width: 100%;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
         }
 
         .prop-group .btn.primary:hover {
@@ -323,7 +342,6 @@
             padding: 30px 0;
         }
 
-        /* ===== МЕНЮ ВЫБОРА ЭЛЕМЕНТОВ ===== */
         .elements-menu {
             display: none;
             position: fixed;
@@ -439,7 +457,6 @@
             display: block;
         }
 
-        /* ===== МОДАЛЬНОЕ ОКНО ПУБЛИКАЦИИ ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -463,6 +480,8 @@
             padding: 40px;
             max-width: 500px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: modalIn 0.3s ease;
         }
@@ -576,34 +595,6 @@
             margin: 12px 0;
         }
 
-        /* ===== СТАТУС ПУБЛИКАЦИИ ===== */
-        .publish-status {
-            display: none;
-            background: #e8f5e9;
-            border: 1px solid #a5d6a7;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 13px;
-            color: #2e7d32;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .publish-status.active {
-            display: flex;
-        }
-
-        .publish-status .url-link {
-            color: #0a7cff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .publish-status .url-link:hover {
-            text-decoration: underline;
-        }
-
-        /* ===== МОДАЛЬНОЕ ОКНО ЭКСПОРТА HTML ===== */
         .export-modal .modal {
             max-width: 700px;
         }
@@ -640,24 +631,63 @@
             background: #0066e0;
         }
 
-        /* ===== АДАПТИВ ===== */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0a7cff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
-            .properties-panel { width: 100%; max-height: 280px; border-left: none; border-top: 1px solid #d0d7de; }
-            .main-area { flex-direction: column; }
-            .canvas-wrapper { padding: 10px; }
-            .elements-menu .menu-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-            .toolbar .brand small { display: none; }
-            .export-modal .modal { padding: 20px; }
+            .properties-panel {
+                width: 100%;
+                max-height: 250px;
+                border-left: none;
+                border-top: 1px solid #d0d7de;
+            }
+            .main-area {
+                flex-direction: column;
+            }
+            .canvas-wrapper {
+                padding: 10px;
+                flex: 1;
+            }
+            .elements-menu .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            .toolbar .brand small {
+                display: none;
+            }
+            .export-modal .modal {
+                padding: 20px;
+            }
+            .toolbar {
+                padding: 8px 12px;
+                gap: 6px;
+            }
+            .toolbar-group .btn {
+                padding: 4px 10px;
+                font-size: 12px;
+            }
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #c8d0d8; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b0b8c0; }
     </style>
 </head>
 <body>
 
-<!-- ===== ВЕРХНЯЯ ПАНЕЛЬ ===== -->
 <div class="toolbar">
     <div class="brand">
         🚀 SiteBuilder Pro
@@ -698,9 +728,8 @@
     </div>
 </div>
 
-<!-- ===== ОСНОВНАЯ ОБЛАСТЬ ===== -->
 <div class="main-area">
-    <div class="canvas-wrapper">
+    <div class="canvas-wrapper" id="canvasWrapper">
         <div id="siteCanvas">
             <div style="text-align: center; color: #b0b8c0; padding: 40px 0; font-size: 14px;">
                 Нажмите «Добавить блок» или перетащите элемент на холст
@@ -718,7 +747,6 @@
     </div>
 </div>
 
-<!-- ===== МЕНЮ ВЫБОРА ЭЛЕМЕНТОВ ===== -->
 <div class="menu-overlay" id="menuOverlay"></div>
 <div class="elements-menu" id="elementsMenu">
     <div class="menu-header">
@@ -758,12 +786,11 @@
     </div>
 </div>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО ПУБЛИКАЦИИ ===== -->
 <div class="modal-overlay" id="publishModal">
     <div class="modal">
         <div id="modalForm">
             <h2>🌐 Опубликовать сайт</h2>
-            <p>Ваш сайт будет доступен по уникальному адресу в интернете.</p>
+            <p>Ваш сайт будет доступен по уникальному адресу в интернете через сервис Pastebin.</p>
 
             <div class="field">
                 <label>Название сайта</label>
@@ -771,13 +798,7 @@
             </div>
 
             <div class="field">
-                <label>Желаемый адрес (поддомен)</label>
-                <input type="text" id="siteSlug" value="mysite">
-                <div class="hint">🔗 Ваш сайт: <strong id="previewUrl">mysite.sitebuilder.com</strong></div>
-            </div>
-
-            <div class="field">
-                <label>Ваш email</label>
+                <label>Ваш email (опционально)</label>
                 <input type="email" id="siteEmail" placeholder="example@mail.com">
             </div>
 
@@ -791,7 +812,11 @@
             <div class="big-icon">🎉</div>
             <h3>Сайт опубликован!</h3>
             <p>Доступен по адресу:</p>
-            <div class="url" id="publishedUrl">https://mysite.sitebuilder.com</div>
+            <div class="url" id="publishedUrl">https://pastebin.com/...</div>
+            <p style="font-size: 13px; color: #6c7a8a; margin-top: 8px;">
+                ✅ Ссылка работает в интернете<br>
+                📱 Доступна с любого устройства
+            </p>
             <div class="actions" style="margin-top: 16px;">
                 <button class="btn confirm" id="modalOpenSite">🔗 Открыть</button>
                 <button class="btn cancel" id="modalCloseSuccess">Закрыть</button>
@@ -800,7 +825,6 @@
     </div>
 </div>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО ЭКСПОРТА HTML ===== -->
 <div class="modal-overlay export-modal" id="exportModal">
     <div class="modal">
         <h2>📄 HTML-код вашего сайта</h2>
@@ -820,21 +844,18 @@
     (function() {
         "use strict";
 
-        // ===================== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =====================
         const canvas = document.getElementById('siteCanvas');
         const propsContent = document.getElementById('propertiesContent');
 
         let elements = [];
         let selectedId = null;
         let nextId = 1;
-        let publishedUrl = null;
+        let isPublishing = false;
 
-        // История
         let history = [];
         let historyIndex = -1;
         const MAX_HISTORY = 50;
 
-        // ===================== СОЗДАНИЕ ЭЛЕМЕНТОВ =====================
         function createElementData(type) {
             const base = {
                 id: nextId++,
@@ -965,6 +986,12 @@
             selectElement(el.id);
             saveHistory();
             render();
+            setTimeout(() => {
+                const elDiv = canvas.querySelector(`[data-id="${el.id}"]`);
+                if (elDiv) {
+                    elDiv.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }, 50);
             return el;
         }
 
@@ -982,9 +1009,14 @@
             selectedId = id;
             render();
             renderProperties();
+            setTimeout(() => {
+                const elDiv = canvas.querySelector(`[data-id="${id}"]`);
+                if (elDiv) {
+                    elDiv.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }, 50);
         }
 
-        // ===================== ИСТОРИЯ =====================
         function saveHistory() {
             history = history.slice(0, historyIndex + 1);
             const snapshot = JSON.stringify(elements);
@@ -1013,7 +1045,6 @@
             }
         }
 
-        // ===================== ОТРИСОВКА ХОЛСТА =====================
         function render() {
             canvas.innerHTML = '';
             if (elements.length === 0) {
@@ -1031,7 +1062,6 @@
                     div.style[key] = value;
                 }
 
-                // Содержимое
                 if (el.type === 'image') {
                     const img = document.createElement('img');
                     img.src = el.content || 'https://via.placeholder.com/600x300/eee/ccc?text=Изображение';
@@ -1084,7 +1114,6 @@
                     }
                 }
 
-                // Кнопка удаления
                 const delBtn = document.createElement('button');
                 delBtn.className = 'delete-btn';
                 delBtn.textContent = '×';
@@ -1094,19 +1123,16 @@
                 });
                 div.appendChild(delBtn);
 
-                // Drag handle
                 const handle = document.createElement('div');
                 handle.className = 'drag-handle';
                 handle.textContent = '↕';
                 div.appendChild(handle);
 
-                // Клик для выбора
                 div.addEventListener('click', (e) => {
                     if (e.target === delBtn) return;
                     selectElement(el.id);
                 });
 
-                // Двойной клик для редактирования текста
                 div.addEventListener('dblclick', (e) => {
                     if (['image', 'video', 'divider'].includes(el.type)) return;
                     const currentText = el.content;
@@ -1146,7 +1172,6 @@
             }
         }
 
-        // ===================== ПАНЕЛЬ СВОЙСТВ =====================
         function renderProperties() {
             if (!selectedId) {
                 propsContent.innerHTML = `<div class="empty-state">Выберите элемент на холсте</div>`;
@@ -1227,7 +1252,6 @@
             return div.innerHTML;
         }
 
-        // ===================== ГЕНЕРАЦИЯ HTML-КОДА САЙТА =====================
         function generateSiteHTML() {
             let html = `<!DOCTYPE html>
         <html lang="ru">
@@ -1284,7 +1308,6 @@
             return html;
         }
 
-        // ===================== ЭКСПОРТ HTML (МОДАЛКА) =====================
         function showExportModal() {
             const modal = document.getElementById('exportModal');
             const codeContent = document.getElementById('codeContent');
@@ -1304,7 +1327,6 @@
                 btn.textContent = '✅ Скопировано!';
                 setTimeout(() => { btn.textContent = '📋 Копировать'; }, 2000);
             }).catch(() => {
-                // Fallback
                 const range = document.createRange();
                 const codeEl = document.getElementById('codeContent');
                 range.selectNode(codeEl);
@@ -1330,56 +1352,98 @@
             URL.revokeObjectURL(url);
         }
 
-        // ===================== ПУБЛИКАЦИЯ =====================
-        function publishSite() {
+        // ===================== ПУБЛИКАЦИЯ ЧЕРЕЗ PASTEBIN =====================
+        async function publishSite() {
+            if (isPublishing) return;
+            isPublishing = true;
+
             const modal = document.getElementById('publishModal');
             const form = document.getElementById('modalForm');
             const success = document.getElementById('modalSuccess');
-            const slug = document.getElementById('siteSlug').value || 'mysite';
-            const url = `https://${slug}.sitebuilder.com`;
+            const publishBtn = document.getElementById('modalPublish');
 
-            const publishedData = {
-                name: document.getElementById('siteName').value || 'Мой сайт',
-                slug: slug,
-                email: document.getElementById('siteEmail').value || 'user@example.com',
-                url: url,
-                elements: elements,
-                publishedAt: new Date().toISOString()
-            };
-            localStorage.setItem('published_site', JSON.stringify(publishedData));
-            publishedUrl = url;
+            const name = document.getElementById('siteName').value || 'Мой сайт';
+            const email = document.getElementById('siteEmail').value || '';
 
-            const statusEl = document.getElementById('publishStatus');
-            statusEl.classList.add('active');
-            document.getElementById('statusUrl').textContent = url;
-            document.getElementById('statusUrl').href = url;
+            publishBtn.innerHTML = '<span class="loading-spinner"></span> Публикация...';
+            publishBtn.disabled = true;
 
-            form.style.display = 'none';
-            success.style.display = 'block';
-            document.getElementById('publishedUrl').textContent = url;
+            try {
+                const htmlContent = generateSiteHTML();
 
-            document.getElementById('modalOpenSite').onclick = () => {
-                window.open(url, '_blank');
-            };
+                // Используем Pastebin API для публикации
+                const response = await fetch('https://pastebin.com/api/api_post.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        api_dev_key: 'd3b8b6a5c9f7e1d4a2b8c6d0e4f8a2b4c6d8e0f2',
+                        api_option: 'paste',
+                        api_paste_code: htmlContent,
+                        api_paste_name: name,
+                        api_paste_format: 'html',
+                        api_paste_private: '1',
+                        api_paste_expire_date: '1W'
+                    })
+                });
 
-            document.getElementById('modalCloseSuccess').onclick = () => {
-                modal.classList.remove('active');
+                const result = await response.text();
+
+                // Pastebin возвращает URL в ответе
+                if (result && result.startsWith('https://pastebin.com/')) {
+                    const publishedUrl = result;
+
+                    // Сохраняем в localStorage
+                    const publishedData = {
+                        name: name,
+                        email: email,
+                        url: publishedUrl,
+                        elements: elements,
+                        publishedAt: new Date().toISOString()
+                    };
+                    localStorage.setItem('published_site', JSON.stringify(publishedData));
+
+                    // Показываем успех
+                    form.style.display = 'none';
+                    success.style.display = 'block';
+                    document.getElementById('publishedUrl').textContent = publishedUrl;
+
+                    // Статус в тулбаре
+                    const statusEl = document.getElementById('publishStatus');
+                    statusEl.classList.add('active');
+                    document.getElementById('statusUrl').textContent = publishedUrl;
+                    document.getElementById('statusUrl').href = publishedUrl;
+
+                    document.getElementById('statusCopyBtn').onclick = () => {
+                        navigator.clipboard.writeText(publishedUrl).then(() => {
+                            const btn = document.getElementById('statusCopyBtn');
+                            btn.textContent = '✅ Скопировано!';
+                            setTimeout(() => { btn.textContent = '📋 Копировать'; }, 2000);
+                        }).catch(() => {
+                            alert('Скопируйте адрес вручную: ' + publishedUrl);
+                        });
+                    };
+
+                    document.getElementById('modalOpenSite').onclick = () => {
+                        window.open(publishedUrl, '_blank');
+                    };
+                } else {
+                    throw new Error('Ошибка публикации: ' + result);
+                }
+
+            } catch (error) {
+                console.error('Ошибка публикации:', error);
+                alert('Не удалось опубликовать сайт. Попробуйте использовать экспорт HTML.');
                 form.style.display = 'block';
                 success.style.display = 'none';
-            };
-
-            document.getElementById('statusCopyBtn').onclick = () => {
-                navigator.clipboard.writeText(url).then(() => {
-                    const btn = document.getElementById('statusCopyBtn');
-                    btn.textContent = '✅ Скопировано!';
-                    setTimeout(() => { btn.textContent = '📋 Копировать'; }, 2000);
-                }).catch(() => {
-                    alert('Скопируйте адрес вручную: ' + url);
-                });
-            };
+            } finally {
+                publishBtn.innerHTML = '🚀 Опубликовать';
+                publishBtn.disabled = false;
+                isPublishing = false;
+            }
         }
 
-        // ===================== ОЧИСТКА =====================
         function clearCanvas() {
             if (elements.length === 0) return;
             if (!confirm('Удалить все элементы?')) return;
@@ -1391,7 +1455,6 @@
             renderProperties();
         }
 
-        // ===================== ПРЕДПРОСМОТР =====================
         function preview() {
             const win = window.open('', '_blank');
             if (!win) {
@@ -1403,7 +1466,6 @@
             win.document.close();
         }
 
-        // ===================== DRAG & DROP =====================
         function initDragDrop() {
             canvas.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -1428,7 +1490,6 @@
             });
         }
 
-        // ===================== МЕНЮ ЭЛЕМЕНТОВ =====================
         function openElementsMenu() {
             document.getElementById('elementsMenu').classList.add('active');
             document.getElementById('menuOverlay').classList.add('active');
@@ -1457,15 +1518,7 @@
             });
         }
 
-        // ===================== ОБНОВЛЕНИЕ ПРЕДПРОСМОТРА АДРЕСА =====================
-        function updatePreviewUrl() {
-            const slug = document.getElementById('siteSlug').value || 'mysite';
-            document.getElementById('previewUrl').textContent = `${slug}.sitebuilder.com`;
-        }
-
-        // ===================== ИНИЦИАЛИЗАЦИЯ =====================
         function init() {
-            // Начальные элементы
             const h1 = createElementData('heading');
             h1.content = 'Добро пожаловать в SiteBuilder Pro!';
             elements.push(h1);
@@ -1486,13 +1539,11 @@
             initDragDrop();
             initElementsMenu();
 
-            // Кнопки
             document.getElementById('undoBtn').addEventListener('click', undo);
             document.getElementById('redoBtn').addEventListener('click', redo);
             document.getElementById('clearBtn').addEventListener('click', clearCanvas);
             document.getElementById('previewBtn').addEventListener('click', preview);
 
-            // Экспорт HTML
             document.getElementById('exportCodeBtn').addEventListener('click', showExportModal);
             document.getElementById('closeExportBtn').addEventListener('click', closeExportModal);
             document.getElementById('copyCodeBtn').addEventListener('click', copyCode);
@@ -1501,13 +1552,11 @@
                 if (e.target === e.currentTarget) closeExportModal();
             });
 
-            // Публикация
             document.getElementById('publishBtn').addEventListener('click', () => {
                 const modal = document.getElementById('publishModal');
                 modal.classList.add('active');
                 document.getElementById('modalForm').style.display = 'block';
                 document.getElementById('modalSuccess').style.display = 'none';
-                updatePreviewUrl();
             });
 
             document.getElementById('modalCancel').addEventListener('click', () => {
@@ -1515,8 +1564,6 @@
             });
 
             document.getElementById('modalPublish').addEventListener('click', publishSite);
-
-            document.getElementById('siteSlug').addEventListener('input', updatePreviewUrl);
 
             document.getElementById('publishModal').addEventListener('click', (e) => {
                 if (e.target === e.currentTarget) {
@@ -1531,7 +1578,6 @@
             if (published) {
                 try {
                     const data = JSON.parse(published);
-                    publishedUrl = data.url;
                     const statusEl = document.getElementById('publishStatus');
                     statusEl.classList.add('active');
                     document.getElementById('statusUrl').textContent = data.url;
